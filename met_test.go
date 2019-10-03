@@ -1,6 +1,7 @@
 package met
 
 import (
+	"fmt"
 	"testing"
 	"time"
 )
@@ -24,7 +25,7 @@ func TestObjects(t *testing.T) {
 	}
 
 	deps, _ := Objects(ObjectsOptions{
-		DepartmentIds: []int{1},
+		DepartmentIDs: []int{1},
 	})
 	checkObjectsLengthsAgree(t, deps)
 }

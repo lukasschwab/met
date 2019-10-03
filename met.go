@@ -1,3 +1,5 @@
+// Package met provides a thin wrapper around the Metropolitan Museum of Art
+// Collection API: https://metmuseum.github.io
 package met
 
 import (
@@ -14,7 +16,7 @@ import (
 	opt "github.com/lukasschwab/optional"
 )
 
-const APIRoot = "https://collectionapi.metmuseum.org/public/collection/v1/"
+const apiRoot = "https://collectionapi.metmuseum.org/public/collection/v1/"
 
 type HTTPOptions struct {
 	Client *http.Client
@@ -44,7 +46,7 @@ type ObjectsOptions struct {
 	HTTPOptions
 	// NOTE: should MetadataDate just be a string?
 	MetadataDate  *time.Time
-	DepartmentIds []int
+	DepartmentIDs []int
 }
 
 func (options ObjectsOptions) toQuery() url.Values {
@@ -53,11 +55,11 @@ func (options ObjectsOptions) toQuery() url.Values {
 		t := *options.MetadataDate
 		query.Set("metadataDate", t.Format("2006-01-02"))
 	}
-	if options.DepartmentIds != nil {
-    asStrings := make([]string, len(ids))
-  	for i := range ids {
-  		asStrings[i] = strconv.Itoa(ids[i])
-  	}
+	if options.DepartmentIDs != nil && len(options.DepartmentIDs) > 0 {
+		asStrings := make([]string, len(options.DepartmentIDs))
+		for i := range options.DepartmentIDs {
+			asStrings[i] = strconv.Itoa(options.DepartmentIDs[i])
+		}
 		query.Set("departmentIds", strings.Join(asStrings, "|"))
 	}
 	return query
@@ -69,7 +71,7 @@ type ObjectsResult struct {
 }
 
 func Objects(options ObjectsOptions) (*ObjectsResult, error) {
-	u, _ := url.Parse(APIRoot)
+	u, _ := url.Parse(apiRoot)
 	u.Path += "objects"
 	u.RawQuery = options.toQuery().Encode()
 
@@ -98,7 +100,7 @@ type ObjectResult struct {
 	PrimaryImage          string        `json:"primaryImage"`
 	PrimaryImageSmall     string        `json:"primaryImageSmall"`
 	AdditionalImages      []string      `json:"additionalImages"`
-	Constituents          []Constituent `json:"constituents"`
+	Constituents          []constituent `json:"constituents"`
 	Department            string        `json:"department"`
 	ObjectName            string        `json:"objectName"`
 	Title                 string        `json:"title"`
@@ -142,13 +144,13 @@ type ObjectResult struct {
 	Tags                  []string      `json:"tags"`
 }
 
-type Constituent struct {
+type constituent struct {
 	Name string `json:"name"`
 	Role string `json:"role"`
 }
 
 func Object(options ObjectOptions) (*ObjectResult, error) {
-	u, _ := url.Parse(APIRoot)
+	u, _ := url.Parse(apiRoot)
 	u.Path += fmt.Sprintf("objects/%d", options.ObjectID)
 
 	resp, err := options.makeRequest(u)
@@ -178,7 +180,7 @@ type Department struct {
 }
 
 func Departments(options HTTPOptions) (*DepartmentsResult, error) {
-	u, _ := url.Parse(APIRoot)
+	u, _ := url.Parse(apiRoot)
 	u.Path += "departments"
 
 	resp, err := options.makeRequest(u)
@@ -263,7 +265,7 @@ func Search(options SearchOptions) (*ObjectsResult, error) {
 		return nil, err
 	}
 
-	u, _ := url.Parse(APIRoot)
+	u, _ := url.Parse(apiRoot)
 	u.Path += "search"
 	u.RawQuery = options.toQuery().Encode()
 
