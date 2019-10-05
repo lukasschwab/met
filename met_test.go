@@ -30,6 +30,40 @@ func TestObjects(t *testing.T) {
 	checkObjectsLengthsAgree(t, deps)
 }
 
+func ExampleObjects_all() {
+	// Get all objects.
+	allObjects, err := Objects(ObjectsOptions{})
+	if err != nil {
+		// Handle error
+	}
+	fmt.Printf("All %d object IDs: %v", allObjects.Total, allObjects.ObjectIDs)
+}
+
+func ExampleObjects_date() {
+	// Get all objects updated in the last 20 years.
+	twentyYearsAgo := time.Now().AddDate(-20, 0, 0)
+	recentObjects, err := Objects(ObjectsOptions{
+		MetadataDate: &twentyYearsAgo,
+	})
+	if err != nil {
+		// Handle err.
+	}
+	fmt.Printf("All %d object IDs: %v", recentObjects.Total, recentObjects.ObjectIDs)
+}
+
+func ExampleObjects_department() {
+	// Get all objects updated in the last 20 years in Department 1.
+	twentyYearsAgo := time.Now().AddDate(-20, 0, 0)
+	d1Objects, err := Objects(ObjectsOptions{
+		MetadataDate:  &twentyYearsAgo,
+		DepartmentIDs: []int{1},
+	})
+	if err != nil {
+		// Handle err.
+	}
+	fmt.Printf("All %d object IDs: %v", d1Objects.Total, d1Objects.ObjectIDs)
+}
+
 func TestObject(t *testing.T) {
 	targetObject := 436535
 	o, err := Object(ObjectOptions{ObjectID: targetObject})
