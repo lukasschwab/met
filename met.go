@@ -79,6 +79,9 @@ type ObjectsResult struct {
 	ObjectIDs []int `json:"objectIDs"`
 }
 
+// Objects returns a listing of all valid Object IDs, pursuant to any
+// restriction on metadata update dates and/or department membership
+// specified in the request options.
 func Objects(options ObjectsOptions) (*ObjectsResult, error) {
 	u, _ := url.Parse(apiRoot)
 	u.Path += "objects"
@@ -158,6 +161,9 @@ type Constituent struct {
 	Role string `json:"role"`
 }
 
+// Object returns a record for an object, containing all open access data about
+// that object, including its image (if the image is available under Open
+// Access).
 func Object(options ObjectOptions) (*ObjectResult, error) {
 	u, _ := url.Parse(apiRoot)
 	u.Path += fmt.Sprintf("objects/%d", options.ObjectID)
@@ -188,6 +194,7 @@ type Department struct {
 	DisplayName  string `json:"displayName"`
 }
 
+// Departments returns a listing of all valid departments.
 func Departments(options HTTPOptions) (*DepartmentsResult, error) {
 	u, _ := url.Parse(apiRoot)
 	u.Path += "departments"
@@ -235,6 +242,7 @@ func (options SearchOptions) validate() error {
 	return nil
 }
 
+// TODO: add these to a submodule of optional.
 func maybeAddBoolToQuery(q *url.Values, name string, b opt.Bool) {
 	if b != nil {
 		q.Set(name, strconv.FormatBool(opt.ToBool(b)))
@@ -268,6 +276,8 @@ func (options SearchOptions) toQuery() url.Values {
 	return query
 }
 
+// Search returns a listing of all Object IDs for objects with metadata
+// matching the specified options.
 func Search(options SearchOptions) (*ObjectsResult, error) {
 	err := options.validate()
 	if err != nil {
