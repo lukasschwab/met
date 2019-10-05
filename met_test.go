@@ -119,6 +119,103 @@ func TestSearch(t *testing.T) {
 	checkObjectsLengthsAgree(t, o)
 }
 
+func ExampleSearch_query() {
+	results, err := Search(SearchOptions{Q: "sunflower"})
+	if err != nil {
+		// Handle error.
+	}
+	fmt.Printf("There are %d results.\n", results.Total)
+}
+
+func ExampleSearch_highlights() {
+	results, err := Search(SearchOptions{
+		Q:           "sunflower",
+		IsHighlight: true,
+	})
+	if err != nil {
+		// Handle error.
+	}
+	fmt.Printf("There are %d results.\n", results.Total)
+}
+
+func ExampleSearch_department() {
+	results, err := Search(SearchOptions{
+		Q:            "cat",
+		DepartmentID: 6,
+	})
+	if err != nil {
+		// Handle error.
+	}
+	fmt.Printf("There are %d results.\n", results.Total)
+}
+
+func ExampleSearch_view() {
+	results, err := Search(SearchOptions{
+		Q:        "sunflower",
+		IsOnView: true,
+	})
+	if err != nil {
+		// Handle error.
+	}
+	fmt.Printf("There are %d results.\n", results.Total)
+}
+
+func ExampleSearch_culture() {
+	results, err := Search(SearchOptions{
+		Q:               "french",
+		ArtistOrCulture: true,
+	})
+	if err != nil {
+		// Handle error.
+	}
+	fmt.Printf("There are %d results.\n", results.Total)
+}
+
+func ExampleSearch_media() {
+	results, err := Search(SearchOptions{
+		Q:     "quilt",
+		Media: []string{"Quilts", "Silk", "Bedcovers"},
+	})
+	if err != nil {
+		// Handle error.
+	}
+	fmt.Printf("There are %d results.\n", results.Total)
+}
+
+func ExampleSearch_images() {
+	results, err := Search(SearchOptions{
+		Q:         "Auguste Renoir",
+		HasImages: true,
+	})
+	if err != nil {
+		// Handle error.
+	}
+	fmt.Printf("There are %d results.\n", results.Total)
+}
+
+func ExampleSearch_geolocation() {
+	results, err := Search(SearchOptions{
+		Q:            "flowers",
+		GeoLocations: []string{"France"},
+	})
+	if err != nil {
+		// Handle error.
+	}
+	fmt.Printf("There are %d results.\n", results.Total)
+}
+
+func ExampleSearch_dates() {
+	results, err := Search(SearchOptions{
+		Q:         "African",
+		DateBegin: 1700,
+		DateEnd:   1800,
+	})
+	if err != nil {
+		// Handle error.
+	}
+	fmt.Printf("There are %d results.\n", results.Total)
+}
+
 // Utilities.
 
 func checkObjectsLengthsAgree(t *testing.T, o *ObjectsResult) {
