@@ -2,6 +2,7 @@ package met
 
 import (
 	"fmt"
+	"net/http"
 	"testing"
 	"time"
 )
@@ -9,6 +10,19 @@ import (
 // TODO: test that custom client is used.
 // TODO: more comprehensive tests of each method.
 // TODO: test invalid input.
+
+func TestCustomClient(t *testing.T) {
+	cli := &http.Client{
+    // Too short to reasonably succeed.
+		Timeout: 1 * time.Nanosecond,
+	}
+	_, err := Objects(ObjectsOptions{
+		HTTPOptions: HTTPOptions{Client: cli},
+	})
+	if err == nil {
+		t.Errorf("Custom client with infinitessimal timeout should always error.")
+	}
+}
 
 func TestObjects(t *testing.T) {
 	all, _ := Objects(ObjectsOptions{})

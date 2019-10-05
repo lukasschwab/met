@@ -28,8 +28,9 @@ func (options HTTPOptions) makeRequest(u *url.URL) (*http.Response, error) {
 	// Prefer the client specified in options.
 	if options.Client != nil {
 		res, err = options.Client.Get(u.String())
+	} else {
+		res, err = http.Get(u.String())
 	}
-	res, err = http.Get(u.String())
 	return checkStatus(res, err)
 }
 
