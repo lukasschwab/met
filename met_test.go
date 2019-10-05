@@ -98,6 +98,14 @@ func TestDepartments(t *testing.T) {
 	}
 }
 
+func ExampleDepartments() {
+	depts, err := Departments(HTTPOptions{})
+	if err != nil {
+		// Handle error.
+	}
+	fmt.Printf("There are %d departments: %v\n", len(depts.Departments), depts.Departments)
+}
+
 func TestSearch(t *testing.T) {
 	o, err := Search(SearchOptions{Q: "sunflowers"})
 	if err != nil {
