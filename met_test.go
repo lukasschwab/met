@@ -7,13 +7,9 @@ import (
 	"time"
 )
 
-// TODO: test that custom client is used.
-// TODO: more comprehensive tests of each method.
-// TODO: test invalid input.
-
 func TestCustomClient(t *testing.T) {
 	cli := &http.Client{
-    // Too short to reasonably succeed.
+		// Too short to reasonably succeed.
 		Timeout: 1 * time.Nanosecond,
 	}
 	_, err := Objects(ObjectsOptions{
