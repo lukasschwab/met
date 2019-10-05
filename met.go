@@ -100,7 +100,7 @@ type ObjectResult struct {
 	PrimaryImage          string        `json:"primaryImage"`
 	PrimaryImageSmall     string        `json:"primaryImageSmall"`
 	AdditionalImages      []string      `json:"additionalImages"`
-	Constituents          []constituent `json:"constituents"`
+	Constituents          []Constituent `json:"constituents"`
 	Department            string        `json:"department"`
 	ObjectName            string        `json:"objectName"`
 	Title                 string        `json:"title"`
@@ -144,7 +144,7 @@ type ObjectResult struct {
 	Tags                  []string      `json:"tags"`
 }
 
-type constituent struct {
+type Constituent struct {
 	Name string `json:"name"`
 	Role string `json:"role"`
 }

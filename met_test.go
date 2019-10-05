@@ -80,11 +80,11 @@ func TestObject(t *testing.T) {
 }
 
 func ExampleObject() {
-  obj, err := Object(ObjectOptions{ObjectID: 436535})
-  if (err != nil) {
-    // Handle error.
-  }
-  fmt.Printf("Object %d is titled '%s.'\n", obj.ObjectID, obj.Title)
+	obj, err := Object(ObjectOptions{ObjectID: 436535})
+	if err != nil {
+		// Handle error.
+	}
+	fmt.Printf("Object %d is titled '%s.'\n", obj.ObjectID, obj.Title)
 }
 
 func TestDepartments(t *testing.T) {
