@@ -34,9 +34,9 @@ func ExampleObjects_all() {
 	// Get all objects.
 	allObjects, err := Objects(ObjectsOptions{})
 	if err != nil {
-		// Handle error
+		// Handle error.
 	}
-	fmt.Printf("All %d object IDs: %v", allObjects.Total, allObjects.ObjectIDs)
+	fmt.Printf("All %d object IDs: %v\n", allObjects.Total, allObjects.ObjectIDs)
 }
 
 func ExampleObjects_date() {
@@ -46,9 +46,9 @@ func ExampleObjects_date() {
 		MetadataDate: &twentyYearsAgo,
 	})
 	if err != nil {
-		// Handle err.
+		// Handle error.
 	}
-	fmt.Printf("All %d object IDs: %v", recentObjects.Total, recentObjects.ObjectIDs)
+	fmt.Printf("All %d object IDs: %v\n", recentObjects.Total, recentObjects.ObjectIDs)
 }
 
 func ExampleObjects_department() {
@@ -59,9 +59,9 @@ func ExampleObjects_department() {
 		DepartmentIDs: []int{1},
 	})
 	if err != nil {
-		// Handle err.
+		// Handle error.
 	}
-	fmt.Printf("All %d object IDs: %v", d1Objects.Total, d1Objects.ObjectIDs)
+	fmt.Printf("All %d object IDs: %v\n", d1Objects.Total, d1Objects.ObjectIDs)
 }
 
 func TestObject(t *testing.T) {
@@ -77,6 +77,14 @@ func TestObject(t *testing.T) {
 	if err == nil {
 		t.Errorf("Invalid ID should produce 404 status error.")
 	}
+}
+
+func ExampleObject() {
+  obj, err := Object(ObjectOptions{ObjectID: 436535})
+  if (err != nil) {
+    // Handle error.
+  }
+  fmt.Printf("Object %d is titled '%s.'\n", obj.ObjectID, obj.Title)
 }
 
 func TestDepartments(t *testing.T) {
