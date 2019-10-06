@@ -22,6 +22,7 @@ import (
 	"time"
 
 	opt "github.com/lukasschwab/optional"
+	opturl "github.com/lukasschwab/optional/url"
 )
 
 const apiRoot = "https://collectionapi.metmuseum.org/public/collection/v1/"
@@ -242,37 +243,18 @@ func (options SearchOptions) validate() error {
 	return nil
 }
 
-// TODO: add these to a submodule of optional.
-func maybeAddBoolToQuery(q *url.Values, name string, b opt.Bool) {
-	if b != nil {
-		q.Set(name, strconv.FormatBool(opt.ToBool(b)))
-	}
-}
-
-func maybeAddIntToQuery(q *url.Values, name string, i opt.Int) {
-	if i != nil {
-		q.Set(name, strconv.Itoa(opt.ToInt(i)))
-	}
-}
-
-func maybeAddSliceToQuery(q *url.Values, name string, s []string) {
-	if s != nil && len(s) > 0 {
-		q.Set(name, strings.Join(s, "|"))
-	}
-}
-
 func (options SearchOptions) toQuery() url.Values {
 	query := url.Values{}
 	query.Set("q", options.Q)
-	maybeAddBoolToQuery(&query, "isHighlight", options.IsHighlight)
-	maybeAddIntToQuery(&query, "departmentId", options.DepartmentID)
-	maybeAddBoolToQuery(&query, "isOnView", options.IsOnView)
-	maybeAddBoolToQuery(&query, "artistOrCulture", options.ArtistOrCulture)
-	maybeAddSliceToQuery(&query, "medium", options.Media)
-	maybeAddBoolToQuery(&query, "hasImages", options.HasImages)
-	maybeAddSliceToQuery(&query, "geoLocations", options.GeoLocations)
-	maybeAddIntToQuery(&query, "dateBegin", options.DateBegin)
-	maybeAddIntToQuery(&query, "dateEnd", options.DateEnd)
+	opturl.AddBoolToQuery(&query, "isHighlight", options.IsHighlight, opturl.DefaultBoolFormatter)
+	opturl.AddIntToQuery(&query, "departmentId", options.DepartmentID, opturl.DefaultIntFormatter)
+	opturl.AddBoolToQuery(&query, "isOnView", options.IsOnView, opturl.DefaultBoolFormatter)
+	opturl.AddBoolToQuery(&query, "artistOrCulture", options.ArtistOrCulture, opturl.DefaultBoolFormatter)
+	opturl.AddSliceToQuery(&query, "medium", options.Media, opturl.SeparatorFormatter("|"))
+	opturl.AddBoolToQuery(&query, "hasImages", options.HasImages, opturl.DefaultBoolFormatter)
+	opturl.AddSliceToQuery(&query, "geoLocations", options.GeoLocations, opturl.SeparatorFormatter("|"))
+	opturl.AddIntToQuery(&query, "dateBegin", options.DateBegin, opturl.DefaultIntFormatter)
+	opturl.AddIntToQuery(&query, "dateEnd", options.DateEnd, opturl.DefaultIntFormatter)
 	return query
 }
 
