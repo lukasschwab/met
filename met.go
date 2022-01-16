@@ -134,6 +134,7 @@ type ObjectResult struct {
 	ObjectDate            string        `json:"objectDate"`
 	ObjectBeginDate       int           `json:"objectBeginDate"`
 	ObjectEndDate         int           `json:"objectEndDate"`
+	Measurements          []Measurement `json:"measurements"`
 	Medium                string        `json:"medium"`
 	Dimensions            string        `json:"dimensions"`
 	CreditLine            string        `json:"creditLine"`
@@ -160,6 +161,12 @@ type ObjectResult struct {
 type Constituent struct {
 	Name string `json:"name"`
 	Role string `json:"role"`
+}
+
+type Measurement struct {
+	ElementName string `json:"elementName"`
+	ElementDescription string `json:"elementDescription,omitempty"`
+	ElementMeasurements map[string]float64 `json:"elementMeasurements"`
 }
 
 // Object returns a record for an object, containing all open access data about
