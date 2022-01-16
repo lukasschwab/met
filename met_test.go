@@ -8,24 +8,23 @@ import (
 )
 
 func TestCustomClient(t *testing.T) {
-	cli := &http.Client{
+	cli := NewClient(&http.Client{
 		// Too short to reasonably succeed.
 		Timeout: 1 * time.Nanosecond,
-	}
-	_, err := Objects(ObjectsOptions{
-		HTTPOptions: HTTPOptions{Client: cli},
 	})
+	_, err := cli.Objects(ObjectsOptions{})
 	if err == nil {
 		t.Errorf("Custom client with infinitessimal timeout should always error.")
 	}
 }
 
 func TestObjects(t *testing.T) {
-	all, _ := Objects(ObjectsOptions{})
+	c := NewClient(&http.Client{})
+	all, _ := c.Objects(ObjectsOptions{})
 	checkObjectsLengthsAgree(t, all)
 
 	yesterday := time.Now().AddDate(0, 0, -1)
-	recent, _ := Objects(ObjectsOptions{
+	recent, _ := c.Objects(ObjectsOptions{
 		MetadataDate: &yesterday,
 	})
 	checkObjectsLengthsAgree(t, recent)
@@ -34,25 +33,27 @@ func TestObjects(t *testing.T) {
 		t.Errorf("New (%d) should be fewer objects than All (%d).", recent.Total, all.Total)
 	}
 
-	deps, _ := Objects(ObjectsOptions{
+	deps, _ := c.Objects(ObjectsOptions{
 		DepartmentIDs: []int{1},
 	})
 	checkObjectsLengthsAgree(t, deps)
 }
 
-func ExampleObjects_all() {
+func ExampleClient_Objects_all() {
+	c := NewClient(&http.Client{})
 	// Get all objects.
-	allObjects, err := Objects(ObjectsOptions{})
+	allObjects, err := c.Objects(ObjectsOptions{})
 	if err != nil {
 		// Handle error.
 	}
 	fmt.Printf("All %d object IDs: %v\n", allObjects.Total, allObjects.ObjectIDs)
 }
 
-func ExampleObjects_date() {
+func ExampleClient_Objects_date() {
+	c := NewClient(&http.Client{})
 	// Get all objects updated in the last 20 years.
 	twentyYearsAgo := time.Now().AddDate(-20, 0, 0)
-	recentObjects, err := Objects(ObjectsOptions{
+	recentObjects, err := c.Objects(ObjectsOptions{
 		MetadataDate: &twentyYearsAgo,
 	})
 	if err != nil {
@@ -61,10 +62,11 @@ func ExampleObjects_date() {
 	fmt.Printf("All %d object IDs: %v\n", recentObjects.Total, recentObjects.ObjectIDs)
 }
 
-func ExampleObjects_department() {
+func ExampleClient_Objects_department() {
+	c := NewClient(&http.Client{})
 	// Get all objects updated in the last 20 years in Department 1.
 	twentyYearsAgo := time.Now().AddDate(-20, 0, 0)
-	d1Objects, err := Objects(ObjectsOptions{
+	d1Objects, err := c.Objects(ObjectsOptions{
 		MetadataDate:  &twentyYearsAgo,
 		DepartmentIDs: []int{1},
 	})
@@ -75,22 +77,24 @@ func ExampleObjects_department() {
 }
 
 func TestObject(t *testing.T) {
+	c := NewClient(&http.Client{})
 	targetObject := 436535
-	o, err := Object(ObjectOptions{ObjectID: targetObject})
+	o, err := c.Object(ObjectOptions{ObjectID: targetObject})
 	if err != nil {
 		t.Errorf("Valid fetch got error: %s", err)
 	} else if o.ObjectID != targetObject {
 		t.Errorf("Object ID does not match target.")
 	}
 
-	_, err = Object(ObjectOptions{ObjectID: -1})
+	_, err = c.Object(ObjectOptions{ObjectID: -1})
 	if err == nil {
 		t.Errorf("Invalid ID should produce 404 status error.")
 	}
 }
 
-func ExampleObject() {
-	obj, err := Object(ObjectOptions{ObjectID: 436535})
+func ExampleClient_Object() {
+	c := NewClient(&http.Client{})
+	obj, err := c.Object(ObjectOptions{ObjectID: 436535})
 	if err != nil {
 		// Handle error.
 	}
@@ -98,7 +102,8 @@ func ExampleObject() {
 }
 
 func TestDepartments(t *testing.T) {
-	o, err := Departments(HTTPOptions{})
+	c := NewClient(&http.Client{})
+	o, err := c.Departments()
 	if err != nil {
 		t.Errorf("Valid fetch got error: %s", err)
 	} else if len(o.Departments) <= 0 {
@@ -108,8 +113,9 @@ func TestDepartments(t *testing.T) {
 	}
 }
 
-func ExampleDepartments() {
-	depts, err := Departments(HTTPOptions{})
+func ExampleClient_Departments() {
+	c := NewClient(&http.Client{})
+	depts, err := c.Departments()
 	if err != nil {
 		// Handle error.
 	}
@@ -117,28 +123,31 @@ func ExampleDepartments() {
 }
 
 func TestSearch(t *testing.T) {
-	o, err := Search(SearchOptions{Q: "sunflowers"})
+	c := NewClient(&http.Client{})
+	o, err := c.Search(SearchOptions{Q: "sunflowers"})
 	if err != nil {
 		t.Errorf("Valid fetch got error: %s", err)
 	}
 	checkObjectsLengthsAgree(t, o)
-	o, err = Search(SearchOptions{Q: "sunflowers", IsHighlight: true})
+	o, err = c.Search(SearchOptions{Q: "sunflowers", IsHighlight: true})
 	if err != nil {
 		t.Errorf("Valid fetch got error: %s", err)
 	}
 	checkObjectsLengthsAgree(t, o)
 }
 
-func ExampleSearch_query() {
-	results, err := Search(SearchOptions{Q: "sunflower"})
+func ExampleClient_Search_query() {
+	c := NewClient(&http.Client{})
+	results, err := c.Search(SearchOptions{Q: "sunflower"})
 	if err != nil {
 		// Handle error.
 	}
 	fmt.Printf("There are %d results.\n", results.Total)
 }
 
-func ExampleSearch_highlights() {
-	results, err := Search(SearchOptions{
+func ExampleClient_Search_highlights() {
+	c := NewClient(&http.Client{})
+	results, err := c.Search(SearchOptions{
 		Q:           "sunflower",
 		IsHighlight: true,
 	})
@@ -148,8 +157,9 @@ func ExampleSearch_highlights() {
 	fmt.Printf("There are %d results.\n", results.Total)
 }
 
-func ExampleSearch_department() {
-	results, err := Search(SearchOptions{
+func ExampleClient_Search_department() {
+	c := NewClient(&http.Client{})
+	results, err := c.Search(SearchOptions{
 		Q:            "cat",
 		DepartmentID: 6,
 	})
@@ -159,8 +169,9 @@ func ExampleSearch_department() {
 	fmt.Printf("There are %d results.\n", results.Total)
 }
 
-func ExampleSearch_view() {
-	results, err := Search(SearchOptions{
+func ExampleClient_Search_view() {
+	c := NewClient(&http.Client{})
+	results, err := c.Search(SearchOptions{
 		Q:        "sunflower",
 		IsOnView: true,
 	})
@@ -170,8 +181,9 @@ func ExampleSearch_view() {
 	fmt.Printf("There are %d results.\n", results.Total)
 }
 
-func ExampleSearch_culture() {
-	results, err := Search(SearchOptions{
+func ExampleClient_Search_culture() {
+	c := NewClient(&http.Client{})
+	results, err := c.Search(SearchOptions{
 		Q:               "french",
 		ArtistOrCulture: true,
 	})
@@ -181,8 +193,9 @@ func ExampleSearch_culture() {
 	fmt.Printf("There are %d results.\n", results.Total)
 }
 
-func ExampleSearch_media() {
-	results, err := Search(SearchOptions{
+func ExampleClient_Search_media() {
+	c := NewClient(&http.Client{})
+	results, err := c.Search(SearchOptions{
 		Q:     "quilt",
 		Media: []string{"Quilts", "Silk", "Bedcovers"},
 	})
@@ -192,8 +205,9 @@ func ExampleSearch_media() {
 	fmt.Printf("There are %d results.\n", results.Total)
 }
 
-func ExampleSearch_images() {
-	results, err := Search(SearchOptions{
+func ExampleClient_Search_images() {
+	c := NewClient(&http.Client{})
+	results, err := c.Search(SearchOptions{
 		Q:         "Auguste Renoir",
 		HasImages: true,
 	})
@@ -203,8 +217,9 @@ func ExampleSearch_images() {
 	fmt.Printf("There are %d results.\n", results.Total)
 }
 
-func ExampleSearch_geolocation() {
-	results, err := Search(SearchOptions{
+func ExampleClient_Search_geolocation() {
+	c := NewClient(&http.Client{})
+	results, err := c.Search(SearchOptions{
 		Q:            "flowers",
 		GeoLocations: []string{"France"},
 	})
@@ -214,11 +229,11 @@ func ExampleSearch_geolocation() {
 	fmt.Printf("There are %d results.\n", results.Total)
 }
 
-func ExampleSearch_dates() {
-	results, err := Search(SearchOptions{
+func ExampleClient_Search_dates() {
+	c := NewClient(&http.Client{})
+	results, err := c.Search(SearchOptions{
 		Q:         "African",
-		DateBegin: 1700,
-		DateEnd:   1800,
+		YearRange: NewYearRange(1700, 1800),
 	})
 	if err != nil {
 		// Handle error.
