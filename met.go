@@ -54,7 +54,6 @@ func checkStatus(res *http.Response, err error) (*http.Response, error) {
 
 type ObjectsOptions struct {
 	HTTPOptions
-	// NOTE: should MetadataDate just be a string?
 	MetadataDate  *time.Time
 	DepartmentIDs []int
 }
@@ -155,7 +154,10 @@ type ObjectResult struct {
 	MetadataDate          string        `json:"metadataDate"`
 	Repository            string        `json:"repository"`
 	ObjectURL             string        `json:"objectURL"`
-	Tags                  []string      `json:"tags"`
+	Tags                  []Tag      `json:"tags"`
+	ObjectWikidataURL string `json:"objectWikidata_URL"`
+	IsTimelineWork bool `json:"isTimelineWork"`
+	GalleryNumber string `json:"GalleryNumber"`
 }
 
 type Constituent struct {
@@ -167,6 +169,12 @@ type Measurement struct {
 	ElementName string `json:"elementName"`
 	ElementDescription string `json:"elementDescription,omitempty"`
 	ElementMeasurements map[string]float64 `json:"elementMeasurements"`
+}
+
+type Tag struct {
+	Term string `json:"term"`
+	AatURL string `json:"AAT_URL"`
+	WikidataURL string `json:"Wikidata_URL"`
 }
 
 // Object returns a record for an object, containing all open access data about
