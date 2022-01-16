@@ -3,7 +3,6 @@ package met
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 )
@@ -41,16 +40,11 @@ func (c *Client) Objects(options ObjectsOptions) (*ObjectsResult, error) {
 	u.Path += "objects"
 	u.RawQuery = options.toQuery().Encode()
 
-	resp, err := c.makeRequest(u)
-	if err != nil {
+	result := new(ObjectsResult)
+	if err := c.makeRequest(u, result); err != nil {
 		return nil, err
 	}
-
-	defer resp.Body.Close()
-	body, _ := ioutil.ReadAll(resp.Body)
-	var out = new(ObjectsResult)
-	json.Unmarshal(body, out)
-	return out, nil
+	return result, nil
 }
 
 // Object returns a record for an object, containing all open access data about
@@ -60,21 +54,11 @@ func (c *Client) Object(options ObjectOptions) (*ObjectResult, error) {
 	u := c.copyRootURL()
 	u.Path += fmt.Sprintf("objects/%d", options.ObjectID)
 
-	resp, err := c.makeRequest(u)
-	if err != nil {
+	result := new(ObjectResult)
+	if err := c.makeRequest(u, result); err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-	var out = new(ObjectResult)
-	err = json.Unmarshal(body, out)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
+	return result, nil
 }
 
 // Departments returns a listing of all valid departments.
@@ -82,21 +66,11 @@ func (c *Client) Departments() (*DepartmentsResult, error) {
 	u := c.copyRootURL()
 	u.Path += "departments"
 
-	resp, err := c.makeRequest(u)
-	if err != nil {
+	result := new(DepartmentsResult)
+	if err := c.makeRequest(u, result); err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-	var out = new(DepartmentsResult)
-	err = json.Unmarshal(body, out)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
+	return result, nil
 }
 
 // Search returns a listing of all Object IDs for objects with metadata
@@ -106,28 +80,28 @@ func (c *Client) Search(options SearchOptions) (*ObjectsResult, error) {
 	u.Path += "search"
 	u.RawQuery = options.toQuery().Encode()
 
-	resp, err := c.makeRequest(u)
-	if err != nil {
+	result := new(ObjectsResult)
+	if err := c.makeRequest(u, result); err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-	var out = new(ObjectsResult)
-	if err = json.Unmarshal(body, out); err != nil {
-		return nil, err
-	}
-	return out, nil
+	return result, nil
 }
 
-func (c *Client) makeRequest(u *url.URL) (*http.Response, error) {
+func (c *Client) makeRequest(u *url.URL, v interface{}) error {
 	httpClient := c.Client
 	if httpClient == nil {
 		httpClient = http.DefaultClient
 	}
-	return checkStatus(httpClient.Get(u.String()))
+
+	resp, err := checkStatus(httpClient.Get(u.String()))
+	if err != nil {
+		return fmt.Errorf("bad response: %w", err)
+	}
+	defer resp.Body.Close()
+	if err = json.NewDecoder(resp.Body).Decode(v); err != nil {
+		return fmt.Errorf("failed decoding response body: %w", err)
+	}
+	return nil
 }
 
 func checkStatus(res *http.Response, err error) (*http.Response, error) {
