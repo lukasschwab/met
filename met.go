@@ -47,7 +47,7 @@ func checkStatus(res *http.Response, err error) (*http.Response, error) {
 	if err != nil {
 		return res, err
 	} else if res != nil && res.StatusCode != 200 {
-		return res, fmt.Errorf("Got non-200 response code: %d", res.StatusCode)
+		return res, fmt.Errorf("got non-200 response code: %d", res.StatusCode)
 	}
 	return res, nil
 }
